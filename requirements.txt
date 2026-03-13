@@ -1,9 +1,21 @@
-matplotlib==3.10.8
-networkx==3.4.2
-numpy==1.26.4
-plotly==6.6.0
-scikit-learn==1.7.2
-seaborn==0.13.2
-sentence-transformers==5.2.3
-torch==2.5.1
-transformers==5.3.0
+# --- Web API Framework ---
+fastapi
+uvicorn
+pydantic
+
+# --- Core Machine Learning ---
+torch
+transformers
+sentence-transformers
+scikit-learn
+numpy
+
+# --- Graph Analysis ---
+networkx
+
+# --- External Verification ---
+wikipedia
+
+# --- Utilities ---
+tqdm
+requests

@@ -1,18 +1,7 @@
 def paraphrase(prompt):
-
-    prompts = [
-
-        prompt,
-
-        f"Explain the concept of {prompt}",
-
-        f"Describe how {prompt} works",
-
-        f"What does {prompt} mean?",
-
-        f"Give a clear explanation of {prompt}",
-
-        f"Summarize the idea behind {prompt}"
+    return [
+        prompt, # Always keep the baseline
+        f"Please provide a detailed answer to the following query: '{prompt}'",
+        f"I would like to know more about this subject: '{prompt}'. Can you elaborate?",
+        f"Address this question or topic in your own words: '{prompt}'",
     ]
-
-    return prompts

@@ -1,16 +1,7 @@
 def structural(prompt):
-
-    prompts = [
-
-        f"How would you explain {prompt} to a beginner?",
-
-        f"Explain {prompt} step by step",
-
-        f"What are the key ideas behind {prompt}?",
-
-        f"Provide a detailed explanation of {prompt}",
-
-        f"Break down the concept of {prompt} in simple steps"
+    return [
+        f"Answer this query in exactly three concise bullet points: '{prompt}'",
+        f"Provide a one-sentence, TL;DR summary addressing this: '{prompt}'",
+        f"Explain the answer to this as if I were a 5-year-old child: '{prompt}'",
+        f"Structure your response to this as a logical, step-by-step breakdown: '{prompt}'"
     ]
-
-    return prompts

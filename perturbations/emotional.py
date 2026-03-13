@@ -1,16 +1,7 @@
 def emotional(prompt):
-
-    prompts = [
-
-        f"I'm confused about this: {prompt}",
-
-        f"I'm really curious about this topic: {prompt}",
-
-        f"Please help me understand this clearly: {prompt}",
-
-        f"This concept seems complicated: {prompt}",
-
-        f"I don't fully understand {prompt}, explain"
+    return [
+        f"I am really frustrated and confused, I just need a straight, simple answer to this right now: '{prompt}'",
+        f"I'm super excited and curious to learn about this! Please tell me: '{prompt}'",
+        f"Politely and gently explain the answer to this query: '{prompt}'",
+        f"Respond to this prompt using a highly formal, academic, and rigid tone: '{prompt}'"
     ]
-
-    return prompts
