@@ -19,6 +19,8 @@ from visualization.sensitivity_plot import plot_sensitivity_curve
 from visualization.landscape_stability import StabilityLandscape
 
 from analysis.fragility_analyzer import FragilityAnalyzer
+from analysis.diagnostic_report import DiagnosticReport
+from optimization.refinement_loop import RefinementLoop
 
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -59,7 +61,7 @@ def interpret_hallucination(score):
 
 def main():
 
-    prompt = "which is the third planet from the sun"
+    prompt = "Who made telephone?"
 
     print("\n==============================")
     print("Original Prompt:")
@@ -214,6 +216,34 @@ def main():
 
     print("Final Stability Score:", round(final_score, 3))
     print("Overall Model Stability:", interpret_score(final_score))
+
+    # --------------------------------
+    # Prompt Optimization (Self-Healing)
+    # --------------------------------
+
+    diagnostic = DiagnosticReport(
+        similarity_score=similarity_score,
+        graph_score=graph_score,
+        hallucination_risk=hallucination_risk,
+        confidence_score=confidence_score,
+        final_score=final_score,
+        fragility_scores=fragility_scores
+    )
+
+    diagnosis = diagnostic.diagnose()
+
+    if diagnosis["is_fragile"]:
+
+        refinement = RefinementLoop(llm, similarity_model)
+
+        result = refinement.run(prompt, diagnosis)
+
+    else:
+        print("\n==============================")
+        print("PROMPT OPTIMIZATION")
+        print("==============================\n")
+        print("Prompt is stable — no optimization needed.")
+        print(f"Final Stability Score: {final_score:.3f} (threshold: 0.600)")
 
     # --------------------------------
     # Prompt Stability Scores
