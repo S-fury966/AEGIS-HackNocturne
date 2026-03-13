@@ -23,6 +23,10 @@ class LLMInterface:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+    def count_tokens(self, text):
+
+        return len(self.tokenizer.encode(text))
+
     def generate(self, prompt, n=3):
 
         instruction = f"""

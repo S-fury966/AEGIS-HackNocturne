@@ -1,0 +1,177 @@
+from optimization.token_optimizer import TokenOptimizer
+
+from analysis.graph_analyzer import GraphAnalyzer
+from analysis.hallucination_detector import HallucinationDetector
+from analysis.confidence_estimator import ConfidenceEstimator
+from analysis.stability_analyzer import StabilityAnalyzer
+
+
+class TokenRefinementLoop:
+
+    def __init__(self, llm, similarity_model, stability_threshold=0.90):
+
+        self.llm = llm
+        self.similarity_model = similarity_model
+        self.stability_threshold = stability_threshold
+
+        self.token_optimizer = TokenOptimizer(llm)
+
+        self.graph_analyzer = GraphAnalyzer()
+        self.hallucination_detector = HallucinationDetector(similarity_model)
+        self.confidence_estimator = ConfidenceEstimator()
+        self.stability_analyzer = StabilityAnalyzer()
+
+    def run(self, original_prompt, original_scores):
+
+        original_stability_score = original_scores["final_stability"]
+        original_tokens = self.llm.count_tokens(original_prompt)
+
+        # generate compressed candidates
+        candidates = self.token_optimizer.optimize(original_prompt)
+
+        # evaluate all candidates
+        results = []
+
+        for candidate in candidates:
+
+            candidate_tokens = self.llm.count_tokens(candidate)
+            scores, responses = self._full_evaluate(candidate)
+
+            stability = scores["final_stability"]
+            stability_ratio = stability / original_stability_score if original_stability_score > 0 else 0
+
+            # efficiency: reward lower token usage while maintaining stability
+            if candidate_tokens > 0:
+                efficiency = stability * (original_tokens / candidate_tokens)
+            else:
+                efficiency = 0
+
+            results.append({
+                "prompt": candidate,
+                "tokens": candidate_tokens,
+                "scores": scores,
+                "responses": responses,
+                "stability": stability,
+                "stability_ratio": stability_ratio,
+                "efficiency": efficiency
+            })
+
+        # filter: only keep candidates above stability threshold
+        min_stability = original_stability_score * self.stability_threshold
+        valid = [r for r in results if r["stability"] >= min_stability]
+
+        # if no candidate meets the threshold, keep all and note it
+        threshold_met = len(valid) > 0
+
+        if not threshold_met:
+            valid = results
+
+        # pick the most token-efficient candidate
+        best = max(valid, key=lambda r: r["efficiency"])
+
+        token_savings = original_tokens - best["tokens"]
+        savings_pct = (token_savings / original_tokens * 100) if original_tokens > 0 else 0
+
+        # =========================================
+        # REPORT
+        # =========================================
+
+        print("\n==============================")
+        print("TOKEN-OPTIMIZED PROMPT")
+        print("==============================\n")
+
+        print(f"  Original Prompt:    {original_prompt}")
+        print(f"  Original Tokens:    {original_tokens}")
+        print(f"  Original Stability: {original_stability_score:.3f}\n")
+
+        print(f"  Optimized Prompt:   {best['prompt']}")
+        print(f"  Optimized Tokens:   {best['tokens']}")
+        print(f"  Optimized Stability:{best['stability']:.3f}\n")
+
+        print(f"  Token Savings:      {token_savings} tokens ({savings_pct:.1f}%)")
+        print(f"  Efficiency Score:   {best['efficiency']:.3f}")
+
+        if not threshold_met:
+            print(f"\n  ⚠ No candidate met the {self.stability_threshold*100:.0f}% stability threshold.")
+            print(f"    Showing the best available candidate.")
+
+        # side-by-side metric comparison
+        print(f"\n  {'Metric':<25} {'Original':>10} {'Optimized':>10} {'Delta':>10}")
+        print(f"  {'-' * 57}")
+
+        metrics = [
+            ("Similarity",         "similarity"),
+            ("Graph Stability",    "graph_stability"),
+            ("Hallucination Risk", "hallucination_risk"),
+            ("Confidence",         "confidence"),
+            ("Final Stability",    "final_stability")
+        ]
+
+        for label, key in metrics:
+
+            orig_val = original_scores[key]
+            opt_val = best["scores"][key]
+
+            if key == "hallucination_risk":
+                delta = orig_val - opt_val
+            else:
+                delta = opt_val - orig_val
+
+            delta_str = f"+{delta:.3f}" if delta >= 0 else f"{delta:.3f}"
+
+            print(f"  {label:<25} {orig_val:>10.3f} {opt_val:>10.3f} {delta_str:>10}")
+
+        print(f"\n  {'Tokens':<25} {original_tokens:>10} {best['tokens']:>10} {f'-{token_savings}':>10}")
+
+        # show LLM response
+        print("\n  --- LLM Response to Optimized Prompt ---\n")
+
+        for i, resp in enumerate(best["responses"]):
+            print(f"  Response {i+1}:")
+            print(f"  {resp}")
+            print()
+
+        return {
+            "original_prompt": original_prompt,
+            "optimized_prompt": best["prompt"],
+            "original_tokens": original_tokens,
+            "optimized_tokens": best["tokens"],
+            "token_savings": token_savings,
+            "savings_pct": savings_pct,
+            "original_stability": original_stability_score,
+            "optimized_stability": best["stability"],
+            "efficiency_score": best["efficiency"],
+            "optimized_responses": best["responses"],
+            "threshold_met": threshold_met
+        }
+
+
+    def _full_evaluate(self, prompt):
+
+        responses = self.llm.generate(prompt, n=3)
+
+        embeddings = self.similarity_model.embed(responses)
+        similarity_score, _ = self.similarity_model.similarity_score(embeddings)
+
+        graph = self.graph_analyzer.build_graph(prompt, responses)
+        graph_score = self.graph_analyzer.graph_stability(graph)
+
+        hallucination_risk = self.hallucination_detector.detect(responses)
+
+        confidence_score = self.confidence_estimator.compute(
+            similarity_score, graph_score, hallucination_risk
+        )
+
+        final_score = self.stability_analyzer.final_score(
+            similarity_score, graph_score, hallucination_risk
+        )
+
+        scores = {
+            "similarity": float(similarity_score),
+            "graph_stability": float(graph_score),
+            "hallucination_risk": float(hallucination_risk),
+            "confidence": float(confidence_score),
+            "final_stability": float(final_score)
+        }
+
+        return scores, responses

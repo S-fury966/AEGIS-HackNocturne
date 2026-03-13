@@ -21,6 +21,7 @@ from visualization.landscape_stability import StabilityLandscape
 from analysis.fragility_analyzer import FragilityAnalyzer
 from analysis.diagnostic_report import DiagnosticReport
 from optimization.refinement_loop import RefinementLoop
+from optimization.token_refinement_loop import TokenRefinementLoop
 
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -244,6 +245,22 @@ def main():
         print("==============================\n")
         print("Prompt is stable — no optimization needed.")
         print(f"Final Stability Score: {final_score:.3f} (threshold: 0.600)")
+
+    # --------------------------------
+    # Token-Optimized Prompt
+    # --------------------------------
+
+    token_refinement = TokenRefinementLoop(llm, similarity_model)
+
+    original_scores_dict = {
+        "similarity": similarity_score,
+        "graph_stability": graph_score,
+        "hallucination_risk": hallucination_risk,
+        "confidence": confidence_score,
+        "final_stability": final_score
+    }
+
+    token_result = token_refinement.run(prompt, original_scores_dict)
 
     # --------------------------------
     # Prompt Stability Scores
