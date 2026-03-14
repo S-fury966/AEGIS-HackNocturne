@@ -26,10 +26,11 @@ class TokenRefinementLoop:
         original_stability_score = original_scores["final_stability"]
         original_tokens = self.llm.count_tokens(original_prompt)
 
-        # generate compressed candidates
         candidates = self.token_optimizer.optimize(original_prompt)
 
-        # evaluate all candidates
+        if not candidates:
+            candidates = [original_prompt]
+
         results = []
 
         for candidate in candidates:
@@ -39,12 +40,7 @@ class TokenRefinementLoop:
 
             stability = scores["final_stability"]
             stability_ratio = stability / original_stability_score if original_stability_score > 0 else 0
-
-            # efficiency: reward lower token usage while maintaining stability
-            if candidate_tokens > 0:
-                efficiency = stability * (original_tokens / candidate_tokens)
-            else:
-                efficiency = 0
+            efficiency = stability * (original_tokens / candidate_tokens) if candidate_tokens > 0 else 0
 
             results.append({
                 "prompt": candidate,
@@ -56,25 +52,30 @@ class TokenRefinementLoop:
                 "efficiency": efficiency
             })
 
-        # filter: only keep candidates above stability threshold
         min_stability = original_stability_score * self.stability_threshold
-        valid = [r for r in results if r["stability"] >= min_stability]
+        shorter_candidates = [r for r in results if r["tokens"] < original_tokens]
+        stable_shorter = [r for r in shorter_candidates if r["stability"] >= min_stability]
 
-        # if no candidate meets the threshold, keep all and note it
-        threshold_met = len(valid) > 0
+        optimization_applied = len(stable_shorter) > 0
+        threshold_met = optimization_applied
 
-        if not threshold_met:
-            valid = results
-
-        # pick the most token-efficient candidate
-        best = max(valid, key=lambda r: r["efficiency"])
+        if optimization_applied:
+            best = max(stable_shorter, key=lambda r: r["efficiency"])
+            message = "Stable token-optimized prompt generated."
+        else:
+            best = {
+                "prompt": None,
+                "tokens": original_tokens,
+                "scores": original_scores,
+                "responses": [],
+                "stability": original_stability_score,
+                "stability_ratio": 1.0,
+                "efficiency": 0.0
+            }
+            message = "Stability of response will decrease if tokens get reduced."
 
         token_savings = original_tokens - best["tokens"]
         savings_pct = (token_savings / original_tokens * 100) if original_tokens > 0 else 0
-
-        # =========================================
-        # REPORT
-        # =========================================
 
         print("\n==============================")
         print("TOKEN-OPTIMIZED PROMPT")
@@ -84,27 +85,31 @@ class TokenRefinementLoop:
         print(f"  Original Tokens:    {original_tokens}")
         print(f"  Original Stability: {original_stability_score:.3f}\n")
 
-        print(f"  Optimized Prompt:   {best['prompt']}")
-        print(f"  Optimized Tokens:   {best['tokens']}")
-        print(f"  Optimized Stability:{best['stability']:.3f}\n")
+        if optimization_applied:
+            print(f"  Optimized Prompt:   {best['prompt']}")
+            print(f"  Optimized Tokens:   {best['tokens']}")
+            print(f"  Optimized Stability:{best['stability']:.3f}\n")
+        else:
+            print("  Optimized Prompt:   Not generated")
+            print(f"  Optimized Tokens:   {original_tokens}")
+            print(f"  Optimized Stability:{original_stability_score:.3f}\n")
 
         print(f"  Token Savings:      {token_savings} tokens ({savings_pct:.1f}%)")
         print(f"  Efficiency Score:   {best['efficiency']:.3f}")
 
-        if not threshold_met:
-            print(f"\n  ⚠ No candidate met the {self.stability_threshold*100:.0f}% stability threshold.")
-            print(f"    Showing the best available candidate.")
+        if not optimization_applied:
+            print(f"\n  Warning: {message}")
+            print(f"  Required minimum stability: {min_stability:.3f}")
 
-        # side-by-side metric comparison
         print(f"\n  {'Metric':<25} {'Original':>10} {'Optimized':>10} {'Delta':>10}")
         print(f"  {'-' * 57}")
 
         metrics = [
-            ("Similarity",         "similarity"),
-            ("Graph Stability",    "graph_stability"),
+            ("Similarity", "similarity"),
+            ("Graph Stability", "graph_stability"),
             ("Hallucination Risk", "hallucination_risk"),
-            ("Confidence",         "confidence"),
-            ("Final Stability",    "final_stability")
+            ("Confidence", "confidence"),
+            ("Final Stability", "final_stability")
         ]
 
         for label, key in metrics:
@@ -118,18 +123,17 @@ class TokenRefinementLoop:
                 delta = opt_val - orig_val
 
             delta_str = f"+{delta:.3f}" if delta >= 0 else f"{delta:.3f}"
-
             print(f"  {label:<25} {orig_val:>10.3f} {opt_val:>10.3f} {delta_str:>10}")
 
         print(f"\n  {'Tokens':<25} {original_tokens:>10} {best['tokens']:>10} {f'-{token_savings}':>10}")
 
-        # show LLM response
-        print("\n  --- LLM Response to Optimized Prompt ---\n")
+        if optimization_applied:
+            print("\n  --- LLM Response to Optimized Prompt ---\n")
 
-        for i, resp in enumerate(best["responses"]):
-            print(f"  Response {i+1}:")
-            print(f"  {resp}")
-            print()
+            for i, resp in enumerate(best["responses"]):
+                print(f"  Response {i+1}:")
+                print(f"  {resp}")
+                print()
 
         return {
             "original_prompt": original_prompt,
@@ -142,9 +146,10 @@ class TokenRefinementLoop:
             "optimized_stability": best["stability"],
             "efficiency_score": best["efficiency"],
             "optimized_responses": best["responses"],
-            "threshold_met": threshold_met
+            "threshold_met": threshold_met,
+            "optimization_applied": optimization_applied,
+            "message": message
         }
-
 
     def _full_evaluate(self, prompt):
 

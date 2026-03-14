@@ -26,7 +26,7 @@ Rules:
 
 Improved prompt:"""
 
-        candidates = self.llm.generate(meta_prompt, n=3)
+        candidates = self.llm.generate(meta_prompt, n=3, use_qa_template=False)
 
         cleaned = []
 

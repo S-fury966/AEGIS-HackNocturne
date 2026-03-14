@@ -27,18 +27,21 @@ class LLMInterface:
 
         return len(self.tokenizer.encode(text))
 
-    def generate(self, prompt, n=3):
+    def generate(self, prompt, n=3, use_qa_template=True):
 
-        instruction = f"""
-    Answer the question clearly and directly.
+        if use_qa_template:
+            prompt_text = f"""
+Answer the question clearly and directly.
 
-    Question:
-    {prompt}
+Question:
+{prompt}
 
-    Answer:
-    """
+Answer:
+"""
+        else:
+            prompt_text = prompt
 
-        prompts = [instruction] * n
+        prompts = [prompt_text] * n
 
         inputs = self.tokenizer(
             prompts,
@@ -46,6 +49,8 @@ class LLMInterface:
             padding=True,
             truncation=True
         ).to(self.device)
+
+        input_length = inputs["input_ids"].shape[1]
 
         outputs = self.model.generate(
             **inputs,
@@ -57,8 +62,8 @@ class LLMInterface:
         )
 
         responses = self.tokenizer.batch_decode(
-            outputs,
+            outputs[:, input_length:],
             skip_special_tokens=True
         )
 
-        return responses
+        return [response.strip() for response in responses]
