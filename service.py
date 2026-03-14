@@ -4,6 +4,7 @@ from perturbations.emotional import emotional
 from perturbations.structural import structural
 from perturbations.logical_flip import logical_flip
 from perturbations.reasoning import reasoning
+from optimization.token_refinement_loop import TokenRefinementLoop
 
 # Keep your helper functions
 def interpret_score(score):
@@ -64,6 +65,18 @@ def run_stability_analysis(
     confidence_score = confidence_estimator.compute(similarity_score, graph_score, hallucination_risk)
     final_score = stability_analyzer.final_score(similarity_score, graph_score, hallucination_risk)
 
+    token_refinement = TokenRefinementLoop(llm_interface, similarity_model)
+    token_optimization = token_refinement.run(
+        prompt,
+        {
+            "similarity": float(similarity_score),
+            "graph_stability": float(graph_score),
+            "hallucination_risk": float(hallucination_risk),
+            "confidence": float(confidence_score),
+            "final_stability": float(final_score)
+        }
+    )
+
     # Calculate individual prompt scores for the frontend scatter plot
     prompt_scores = []
     emb_responses = similarity_model.embed(responses)
@@ -101,5 +114,6 @@ def run_stability_analysis(
         "visualization_data": {
             "similarity_matrix": similarity_matrix.tolist(), 
             "prompt_scores": prompt_scores
-        }
+        },
+        "token_optimization": token_optimization
     }

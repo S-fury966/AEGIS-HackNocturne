@@ -62,7 +62,7 @@ def interpret_hallucination(score):
 
 def main():
 
-    prompt = "Who made telephone?"
+    prompt = "Who was the person who drafted the Indian Constitution?"
 
     print("\n==============================")
     print("Original Prompt:")
