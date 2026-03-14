@@ -95,7 +95,7 @@ const LandingPage = () => {
       icon: <AlertTriangle className="w-8 h-8 text-purple-400" />,
       title: "Prompt Fragility Scoring",
       description: "AI logic is inherently fragile. Aegis uses Fragility Prompting to analyze how slight semantic shifts can collapse model reasoning, helping you build robust prompts that withstand real-world perturbations.",
-      tag: "Tone Manipulation"
+      tag: "Statistical Analysis"
     },
     {
       icon: <Activity className="w-8 h-8 text-cyan-400" />,
