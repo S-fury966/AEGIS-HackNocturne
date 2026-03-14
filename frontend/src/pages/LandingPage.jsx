@@ -93,8 +93,8 @@ const LandingPage = () => {
     },
     {
       icon: <AlertTriangle className="w-8 h-8 text-purple-400" />,
-      title: "Emotional Stress-Testing",
-      description: "Test for emotional bias. We rewrite prompts in varying tones to see if aggressive or panicked framing manipulates AI reasoning.",
+      title: "Prompt Fragility Scoring",
+      description: "AI logic is inherently fragile. Aegis uses Fragility Prompting to analyze how slight semantic shifts can collapse model reasoning, helping you build robust prompts that withstand real-world perturbations.",
       tag: "Tone Manipulation"
     },
     {
@@ -121,13 +121,13 @@ const LandingPage = () => {
     },
     {
       number: "02",
-      title: "Set Stress Parameters",
-      description: "Choose the level of semantic paraphrasing and select emotional framing (e.g., Panicked).",
+      title: "Generate Perturbations",
+      description: "Automatically create semantic and emotional variations of your prompt to test for logical brittleness and hidden biases.",
       icon: <Zap className="w-6 h-6 text-purple-400" />
     },
     {
       number: "03",
-      title: "Aegis Analysis",
+      title: "Metric Analysis",
       description: "Our system automatically modifies the prompt, queries the LLM, and compares the degraded outputs.",
       icon: <Activity className="w-6 h-6 text-cyan-400" />
     },

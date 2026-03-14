@@ -449,6 +449,38 @@ const Dashboard = () => {
   const [results, setResults] = useState(null);
   const [activeTab, setActiveTab] = useState('summary');
 
+  // 💎 NEW: Scroll Spying (Intersection Observer) 💎
+  useEffect(() => {
+    // These IDs exactly match the <section id="..."> tags in your main content
+    const sectionIds = ['summary', 'heatmap', 'stability-map', 'sensitivity', 'landscape'];
+    
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        // When a section enters the top 30% of the screen, update the active tab
+        if (entry.isIntersecting) {
+          setActiveTab(entry.target.id);
+        }
+      });
+    };
+
+    const observerOptions = {
+      root: null, // Uses the browser viewport
+      rootMargin: '-20% 0px -70% 0px', // Triggers when the section hits the upper portion of the screen
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Tell the observer to watch all our sections
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    // Cleanup function
+    return () => observer.disconnect();
+  }, [results]); // We include 'results' so it re-calculates when the graphs render!
+
   // Smooth scroll to specific sections
   const scrollToSection = (id) => {
     setActiveTab(id);
