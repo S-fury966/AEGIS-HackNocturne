@@ -295,7 +295,7 @@ const LandingPage = () => {
                   <div>
                     <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Overall Stability Score</h3>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-6xl font-black text-white">68</span>
+                      <span className="text-6xl font-black text-white">67</span>
                       <span className="text-xl text-slate-500 font-bold">/100</span>
                     </div>
                   </div>
