@@ -30,14 +30,17 @@ class LLMInterface:
     def generate(self, prompt, n=3, use_qa_template=True):
 
         if use_qa_template:
-            prompt_text = f"""
-Answer the question clearly and directly.
-
-Question:
-{prompt}
-
-Answer:
-"""
+            # 💎 UPDATED: Using proper Chat Template to stop the model from echoing 💎
+            messages = [
+                {"role": "system", "content": "You are a highly efficient AI assistant. Answer the user's query directly and concisely."},
+                {"role": "user", "content": prompt}
+            ]
+            # This formats the prompt exactly how TinyLlama was trained to see it
+            prompt_text = self.tokenizer.apply_chat_template(
+                messages, 
+                tokenize=False, 
+                add_generation_prompt=True
+            )
         else:
             prompt_text = prompt
 

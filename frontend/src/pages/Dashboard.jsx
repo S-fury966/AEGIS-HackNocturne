@@ -191,8 +191,8 @@ const PlotlyStabilityMap = ({ data }) => {
     };
   }, [data]);
 
-  if (error) {
-  // 💎 UPGRADED Premium Graph Container (Blue Theme & Larger) 💎
+  // 💎 CONSOLDATED Premium Graph Container 💎
+  // We remove the separate 'if (error)' return and make a single return structure
   return (
     <div className="relative group p-1">
       {/* Ambient background glow that brightens on hover - NOW BLUE */}
@@ -220,21 +220,19 @@ const PlotlyStabilityMap = ({ data }) => {
           </div>
         </div>
 
-        {/* The actual graph mounts here */}
-        <div
-          ref={containerRef}
-          className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
-        />
+        {/* The actual graph or error mounts here */}
+        {error ? (
+          <div className="flex-1 w-full flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent">
+            <p className="text-red-400 font-mono text-sm">Plotly error: {error}</p>
+          </div>
+        ) : (
+          <div
+            ref={containerRef}
+            className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
+          />
+        )}
       </div>
     </div>
-  );
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className="w-full h-[400px] border border-white/10 rounded-2xl bg-[#0f172a]/50 overflow-hidden shadow-lg"
-    />
   );
 };
 // ─── Safe Plotly wrapper for Sensitivity Curve (Line Chart) ────────────
@@ -692,7 +690,7 @@ const Dashboard = () => {
                     className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed w-full sm:w-auto"
                   >
                     <Wand2 className="w-5 h-5" />
-                    Optimize Code
+                    Optimize Prompt
                   </button>
 
                   {/* Analyze Prompt Button */}
@@ -864,6 +862,15 @@ const Dashboard = () => {
             )}
             
           </section>
+
+          <button 
+            onClick={() => navigate('/optimize', { state: { analyzedPrompt: prompt } })}
+            disabled={!results || isAnalyzing || results.status === "Error"}
+            className="flex items-center justify-center gap-3 px-10 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold text-lg rounded-2xl hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:scale-105 transition-all disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed mx-auto"
+          >
+            <Wand2 className="w-6 h-6" />
+            Optimize Prompt
+          </button>
 
         </div>
       </main>
