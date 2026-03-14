@@ -137,7 +137,8 @@ class TokenRefinementLoop:
 
         return {
             "original_prompt": original_prompt,
-            "optimized_prompt": best["prompt"],
+            # Fallback to the original prompt if no optimization was applied
+            "optimized_prompt": best["prompt"] if best["prompt"] else original_prompt,
             "original_tokens": original_tokens,
             "optimized_tokens": best["tokens"],
             "token_savings": token_savings,
@@ -148,7 +149,12 @@ class TokenRefinementLoop:
             "optimized_responses": best["responses"],
             "threshold_met": threshold_met,
             "optimization_applied": optimization_applied,
-            "message": message
+            "message": message,
+            
+            # --- ADDED FOR FRONTEND INTEGRATION (STEP 2) ---
+            "new_final_score": best["scores"]["final_stability"],
+            "new_similarity": best["scores"]["similarity"],
+            "new_hallucination_risk": best["scores"]["hallucination_risk"]
         }
 
     def _full_evaluate(self, prompt):
