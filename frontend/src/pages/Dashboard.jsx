@@ -11,7 +11,8 @@ import {
   Send, 
   ShieldAlert,
   Sparkles,
-  Loader2
+  Loader2,
+  Wand2
 } from 'lucide-react';
 
 // ─── Safe Plotly wrapper ───────────────────────────────────────────────────
@@ -77,11 +78,41 @@ const PlotlyHeatmap = ({ matrixData }) => {
     );
   }
 
+  // 💎 UPGRADED Premium Graph Container (Blue Theme & Larger) 💎
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[450px] border border-white/10 rounded-2xl bg-[#0f172a]/50 overflow-hidden shadow-lg"
-    />
+    <div className="relative group p-1">
+      {/* Ambient background glow that brightens on hover - NOW BLUE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-500/5 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition duration-700 pointer-events-none"></div>
+      
+      {/* Main Glassmorphic Card - HEIGHT AT 650px */}
+      <div className="relative w-full h-[650px] bg-[#020617]/90 backdrop-blur-2xl border border-blue-500/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col transition-all duration-500 group-hover:border-blue-500/40">
+        
+        {/* Top Control Bar (HUD style) */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-blue-500/10 bg-blue-950/30">
+          <div className="flex items-center gap-3">
+            {/* Pulsing Active Dot */}
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest">3D Topography Engine Active</span>
+          </div>
+          
+          {/* Decorative Terminal Dots */}
+          <div className="flex gap-1.5 opacity-50">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+          </div>
+        </div>
+
+        {/* The actual graph mounts here */}
+        <div
+          ref={containerRef}
+          className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
+        />
+      </div>
+    </div>
   );
 };
 
@@ -101,7 +132,6 @@ class SectionErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-// ─── Safe Plotly wrapper for Stability Map (Scatterplot) ──────────────
 // ─── Safe Plotly wrapper for Stability Map (Scatterplot) ──────────────
 const PlotlyStabilityMap = ({ data }) => {
   const containerRef = useRef(null);
@@ -162,11 +192,42 @@ const PlotlyStabilityMap = ({ data }) => {
   }, [data]);
 
   if (error) {
-    return (
-      <div className="w-full h-[400px] border border-red-500/30 rounded-2xl bg-red-950/20 flex items-center justify-center">
-        <p className="text-red-400 font-mono text-sm">Plotly error: {error}</p>
+  // 💎 UPGRADED Premium Graph Container (Blue Theme & Larger) 💎
+  return (
+    <div className="relative group p-1">
+      {/* Ambient background glow that brightens on hover - NOW BLUE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-500/5 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition duration-700 pointer-events-none"></div>
+      
+      {/* Main Glassmorphic Card - HEIGHT AT 650px */}
+      <div className="relative w-full h-[650px] bg-[#020617]/90 backdrop-blur-2xl border border-blue-500/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col transition-all duration-500 group-hover:border-blue-500/40">
+        
+        {/* Top Control Bar (HUD style) */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-blue-500/10 bg-blue-950/30">
+          <div className="flex items-center gap-3">
+            {/* Pulsing Active Dot */}
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest">3D Topography Engine Active</span>
+          </div>
+          
+          {/* Decorative Terminal Dots */}
+          <div className="flex gap-1.5 opacity-50">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+          </div>
+        </div>
+
+        {/* The actual graph mounts here */}
+        <div
+          ref={containerRef}
+          className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
+        />
       </div>
-    );
+    </div>
+  );
   }
 
   return (
@@ -238,11 +299,41 @@ const PlotlySensitivityCurve = ({ data }) => {
     );
   }
 
+  // 💎 UPGRADED Premium Graph Container (Blue Theme & Larger) 💎
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[400px] border border-white/10 rounded-2xl bg-[#0f172a]/50 overflow-hidden shadow-lg"
-    />
+    <div className="relative group p-1">
+      {/* Ambient background glow that brightens on hover - NOW BLUE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-500/5 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition duration-700 pointer-events-none"></div>
+      
+      {/* Main Glassmorphic Card - HEIGHT AT 650px */}
+      <div className="relative w-full h-[650px] bg-[#020617]/90 backdrop-blur-2xl border border-blue-500/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col transition-all duration-500 group-hover:border-blue-500/40">
+        
+        {/* Top Control Bar (HUD style) */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-blue-500/10 bg-blue-950/30">
+          <div className="flex items-center gap-3">
+            {/* Pulsing Active Dot */}
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest">3D Topography Engine Active</span>
+          </div>
+          
+          {/* Decorative Terminal Dots */}
+          <div className="flex gap-1.5 opacity-50">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+          </div>
+        </div>
+
+        {/* The actual graph mounts here */}
+        <div
+          ref={containerRef}
+          className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
+        />
+      </div>
+    </div>
   );
 };
 
@@ -312,11 +403,41 @@ const PlotlyStabilityLandscape = ({ zData }) => {
     );
   }
 
+  // 💎 UPGRADED Premium Graph Container (Blue Theme & Larger) 💎
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[500px] border border-white/10 rounded-2xl bg-[#0f172a]/50 overflow-hidden shadow-lg cursor-move"
-    />
+    <div className="relative group p-1">
+      {/* Ambient background glow that brightens on hover - NOW BLUE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-cyan-500/5 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-100 transition duration-700 pointer-events-none"></div>
+      
+      {/* Main Glassmorphic Card - HEIGHT AT 650px */}
+      <div className="relative w-full h-[650px] bg-[#020617]/90 backdrop-blur-2xl border border-blue-500/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col transition-all duration-500 group-hover:border-blue-500/40">
+        
+        {/* Top Control Bar (HUD style) */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-blue-500/10 bg-blue-950/30">
+          <div className="flex items-center gap-3">
+            {/* Pulsing Active Dot */}
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest">3D Topography Engine Active</span>
+          </div>
+          
+          {/* Decorative Terminal Dots */}
+          <div className="flex gap-1.5 opacity-50">
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-blue-400 transition-colors cursor-pointer"></div>
+          </div>
+        </div>
+
+        {/* The actual graph mounts here */}
+        <div
+          ref={containerRef}
+          className="flex-1 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent cursor-move"
+        />
+      </div>
+    </div>
   );
 };
 // ──────────────────────────────────────────────────────────────────────────
@@ -452,36 +573,106 @@ const Dashboard = () => {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 overflow-y-auto relative scroll-smooth">
-        {/* Background Glows */}
-        <div className="fixed top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-cyan-600/10 blur-[120px] pointer-events-none" />
-        <div className="fixed bottom-[-10%] left-[20%] w-[40%] h-[40%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none" />
+        
+        {/* 💎 BOLDER ANIMATED BACKGROUND GLOWS 💎 */}
+        <motion.div 
+          animate={{ 
+            x: [0, 120, -80, 0], 
+            y: [0, 80, -120, 0],
+            scale: [1, 1.3, 0.8, 1]
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+          // Increased opacity to /30, reduced blur slightly, and used fixed sizes (500px)
+          className="fixed top-[-5%] right-[-5%] w-[500px] h-[500px] rounded-full bg-blue-500/30 blur-[100px] pointer-events-none z-0" 
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -150, 100, 0], 
+            y: [0, -100, 120, 0],
+            scale: [1, 0.8, 1.4, 1]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          // Increased opacity to /30, reduced blur slightly, and used fixed sizes (600px)
+          className="fixed bottom-[-5%] left-[-5%] w-[600px] h-[600px] rounded-full bg-purple-500/30 blur-[120px] pointer-events-none z-0" 
+        />
 
         <div className="max-w-5xl mx-auto p-8 lg:p-12 space-y-24">
           
           {/* SECTION 1: Prompt Input & Summary */}
           <section id="summary" className="space-y-8 pt-4">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Prompt Analysis</h2>
-              <p className="text-slate-400">Enter your baseline prompt below to stress-test its logic and stability.</p>
+              {/* 💎 UPDATED: Perfect 3-word-per-line formatting 💎 */}
+              <h2 className="text-5xl md:text-6xl font-black mb-4 text-white leading-tight">
+                Test Your{' '}
+                <motion.span 
+                  animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-[length:200%_auto]"
+                >
+                  LLM
+                </motion.span>
+                
+                <br /> {/* This forces the exact line break you want */}
+
+                <motion.span 
+                  animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 bg-[length:200%_auto]"
+                >
+                  Stability
+                </motion.span>
+                {' '}With Us
+              </h2>
+              <p className="text-slate-400 text-lg">Enter your baseline prompt below to stress-test its logic and stability.</p>
             </div>
 
             {/* Input Box */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-2 backdrop-blur-md shadow-xl">
+            {/* 💎 UPGRADED Premium Input Box 💎 */}
+            <div className="relative group bg-[#020617]/50 border border-slate-700/50 rounded-2xl backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-500 focus-within:border-cyan-500/50 focus-within:shadow-[0_0_40px_rgba(6,182,212,0.15)] focus-within:bg-[#0f172a]/80">
+              
+              {/* Subtle background glow that follows focus */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-purple-500/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-700 blur-2xl pointer-events-none" />
+
+              {/* Textarea */}
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g., Explain the theory of relativity as if I were a 5-year-old..."
-                className="w-full h-32 bg-transparent text-white placeholder-slate-500 p-4 focus:outline-none resize-none"
+                className="w-full h-40 bg-transparent text-slate-100 placeholder-slate-600 p-6 text-lg leading-relaxed focus:outline-none resize-none relative z-10 custom-scrollbar"
               />
-              <div className="flex justify-end items-center p-2 border-t border-white/10 mt-2">
-                <button 
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing || !prompt.trim()}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  {isAnalyzing ? 'Analyzing...' : 'Analyze Prompt'}
-                </button>
+              
+              {/* Bottom Action Bar (Footer) */}
+              <div className="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-[#0f172a]/80 border-t border-slate-700/50">
+                
+                {/* Left side decorative status */}
+                <div className="flex items-center gap-2 text-xs font-mono text-slate-500 px-2">
+                   <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+                   <span>Aegis Pipeline Ready</span>
+                </div>
+
+                {/* Right side buttons */}
+                <div className="flex justify-end items-center gap-3 w-full sm:w-auto">
+                  
+                  {/* 💎 OPTIMIZE CODE BUTTON - NOW IN PURPLE/INDIGO 💎 */}
+                  <button 
+                    onClick={() => navigate('/optimize', { state: { analyzedPrompt: prompt } })}
+                    disabled={!results || isAnalyzing || results.status === "Error"}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all disabled:opacity-20 disabled:grayscale disabled:cursor-not-allowed w-full sm:w-auto"
+                  >
+                    <Wand2 className="w-5 h-5" />
+                    Optimize Code
+                  </button>
+
+                  {/* Analyze Prompt Button */}
+                  <button 
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing || !prompt.trim()}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                  >
+                    {isAnalyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                    {isAnalyzing ? 'Analyzing...' : 'Analyze Prompt'}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -648,18 +839,35 @@ const Dashboard = () => {
   );
 };
 
-// Helper component for Sidebar Links
+/// ─── Upgraded Premium Sidebar Link ─────────────────────────────────────────
 const SidebarLink = ({ icon, label, isActive, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left ${
+    className={`group relative w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 font-medium text-left overflow-hidden ${
       isActive 
-        ? 'bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-400 border border-cyan-500/20' 
-        : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+        ? 'text-cyan-400 bg-gradient-to-r from-cyan-500/10 to-transparent border border-cyan-500/20 shadow-[inset_4px_0_20px_rgba(6,182,212,0.05)]' 
+        : 'text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent'
     }`}
   >
-    {React.cloneElement(icon, { className: 'w-5 h-5' })}
-    {label}
+    {/* Glowing Left Accent Line (Only visible when active) */}
+    {isActive && (
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.9)] rounded-l-xl" />
+    )}
+    
+    {/* Icon with smooth hover scale */}
+    <div className={`transition-transform duration-300 ${!isActive && 'group-hover:scale-110 group-hover:text-cyan-300'}`}>
+      {React.cloneElement(icon, { className: 'w-5 h-5 relative z-10' })}
+    </div>
+    
+    {/* Text with smooth hover slide */}
+    <span className={`relative z-10 transition-transform duration-300 ${!isActive && 'group-hover:translate-x-1'}`}>
+      {label}
+    </span>
+    
+    {/* Subtle hover background glow */}
+    {!isActive && (
+      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.02] to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+    )}
   </button>
 );
 

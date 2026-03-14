@@ -21,6 +21,7 @@ import {
   Shield,
   CheckCircle
 } from 'lucide-react';
+
 const TeamMember = ({ name, role, initial, imgSrc, github, linkedin }) => (
   <motion.div 
     whileHover={{ y: -10 }} 
@@ -39,7 +40,6 @@ const TeamMember = ({ name, role, initial, imgSrc, github, linkedin }) => (
     <h3 className="text-xl font-bold text-white mb-1">{name}</h3>
     <p className="text-cyan-400 text-sm font-medium mb-4">{role}</p>
     <div className="flex justify-center gap-4 text-slate-500">
-      {/* clickable links with target="_blank" so they open in a new tab */}
       <a href={github} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
         <Github className="w-5 h-5" />
       </a>
@@ -49,6 +49,7 @@ const TeamMember = ({ name, role, initial, imgSrc, github, linkedin }) => (
     </div>
   </motion.div>
 );
+
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -63,7 +64,7 @@ const LandingPage = () => {
   }, []);
 
   const handleLaunch = () => {
-    navigate('/dashboard'); // Change this to wherever your app lives
+    navigate('/dashboard'); 
   };
 
   // Aegis Stats
@@ -74,8 +75,12 @@ const LandingPage = () => {
     { number: "Live", label: "Vulnerability Scans" }
   ];
 
-  const robustnessMetrics = [
-    "Logical Consistency", "Factual Accuracy", "Entity Tracking", "Context Retention"
+  // 💎 Updated metrics with custom icons and colors! 💎
+  const analysisMetrics = [
+    { label: "Similarity Score", icon: <Activity className="w-5 h-5 text-blue-400" /> },
+    { label: "Graph Stability", icon: <Layers className="w-5 h-5 text-emerald-400" /> },
+    { label: "Hallucination Risk", icon: <AlertTriangle className="w-5 h-5 text-red-400" /> },
+    { label: "Confidence Score", icon: <Shield className="w-5 h-5 text-purple-400" /> }
   ];
 
   // Aegis Features
@@ -151,9 +156,25 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#020617] text-slate-200 font-sans selection:bg-cyan-500/30">
       
-      {/* Background Glow Effects */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-600/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none" />
+      {/* 💎 ANIMATED BACKGROUND GLOWS 💎 */}
+      <motion.div 
+        animate={{ 
+          x: [0, 120, -80, 0], 
+          y: [0, 80, -120, 0],
+          scale: [1, 1.3, 0.8, 1]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        className="fixed top-[-5%] right-[-5%] w-[500px] h-[500px] rounded-full bg-blue-500/30 blur-[100px] pointer-events-none z-0" 
+      />
+      <motion.div 
+        animate={{ 
+          x: [0, -150, 100, 0], 
+          y: [0, -100, 120, 0],
+          scale: [1, 0.8, 1.4, 1]
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className="fixed bottom-[-5%] left-[-5%] w-[600px] h-[600px] rounded-full bg-purple-500/30 blur-[120px] pointer-events-none z-0" 
+      />
 
       {/* Navigation */}
       <motion.nav
@@ -223,13 +244,11 @@ const LandingPage = () => {
                 variants={fadeInUp} 
                 className="text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight text-white"
                 >
-                {/* Moving Gradient for Aegis */}
                 <span className="text-6xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-gradient-flow mr-2">
                 Aegis:
                 </span> 
                 <br />
                 Stress-Test Your <br />
-                {/* Moving Gradient for LLM Reasoning */}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-cyan-400 to-blue-500 animate-gradient-flow">
                 LLM Reasoning
                 </span>
@@ -264,10 +283,14 @@ const LandingPage = () => {
               initial={{ opacity: 0, scale: 0.9, rotateY: 5 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-              className="relative lg:ml-10"
+              className="relative lg:ml-10 group"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 blur-2xl rounded-3xl" />
-              <div className="relative bg-[#020617]/60 border border-white/10 p-8 rounded-3xl shadow-2xl backdrop-blur-xl">
+              {/* ENHANCED GLOW */}
+              <div className="absolute -inset-2 bg-gradient-to-br from-cyan-500/40 via-blue-500/30 to-purple-600/40 blur-3xl rounded-3xl opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative bg-[#020617]/70 border border-cyan-500/20 p-8 rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.15)] backdrop-blur-xl">
+                
+                {/* Score Header */}
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Overall Stability Score</h3>
@@ -276,45 +299,42 @@ const LandingPage = () => {
                       <span className="text-xl text-slate-500 font-bold">/100</span>
                     </div>
                   </div>
-                  <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
-                    <TrendingDown className="w-7 h-7 text-red-400" />
-                  </div>
                 </div>
 
+                {/* 💎 RESTORED & THEMED: The animated progress bar 💎 */}
                 <div className="mb-8">
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-slate-400">Vulnerabilities Detected</span>
-                    <span className="text-red-400 font-bold">3 High Risk</span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-full h-3">
+                  <div className="w-full bg-slate-800 rounded-full h-3 p-[1px]">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: '68%' }}
                       transition={{ duration: 1.5, delay: 0.8, ease: "easeOut" }}
-                      className="h-3 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-cyan-400"
+                      className="h-full rounded-full bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]"
                     />
                   </div>
                 </div>
 
+                {/* Grid of Custom Metrics */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-white">Verified Robustness</h4>
+                  <h4 className="text-sm font-bold text-white">Analysis Metrics</h4>
                   <div className="grid grid-cols-2 gap-3">
-                    {robustnessMetrics.map((metric, index) => (
+                    {analysisMetrics.map((metric, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 1 + index * 0.1 }}
-                        className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-lg"
+                        className="flex items-center gap-3 bg-[#020617]/50 border border-white/5 px-4 py-3 rounded-lg shadow-inner"
                       >
-                        <CheckCircle className={`w-4 h-4 ${index > 1 ? 'text-yellow-400' : 'text-emerald-400'}`} />
-                        <span className="text-xs font-medium text-slate-300">{metric}</span>
+                        {metric.icon}
+                        <span className="text-xs font-bold text-slate-300">{metric.label}</span>
                       </motion.div>
                     ))}
                   </div>
                 </div>
+                
               </div>
             </motion.div>
+
           </div>
         </div>
       </section>
@@ -373,6 +393,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+      
       <section id="team" className="py-32 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-20">
@@ -384,7 +405,6 @@ const LandingPage = () => {
             </p>
           </motion.div>
 
-          {/* This grid handles 4 members (2x2 on tablet, 1x4 on desktop) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             <TeamMember 
                 name="Ruhani Raman" 
@@ -427,9 +447,8 @@ const LandingPage = () => {
           © {new Date().getFullYear()} Aegis by Team Code Blooded. Built for Hack-Nocturne 2.0.
         </p>
       </footer>
-    </div> // This closes the main div
+    </div>
   );
 };
 
 export default LandingPage;
-   
