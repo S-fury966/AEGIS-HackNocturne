@@ -263,9 +263,14 @@ const LandingPage = () => {
                   <span>Start Mapping</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
-                <button className="flex items-center justify-center px-8 py-4 bg-white/5 text-white font-bold rounded-xl border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm">
+                <a 
+                  href="https://youtu.be/Kfe_8V5aggc?si=TQMddYB0miW21nYY" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center px-8 py-4 bg-white/5 text-white font-bold rounded-xl border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm"
+                >
                   View Demo
-                </button>
+                </a>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/10">
