@@ -249,6 +249,9 @@ AEGIS opens directions in:
 
 #  Author
 
+**Sayan Soumya**\
+GitHub: https://github.com/S-fury966
+
 **Rehan Imtiyaj Mulla**\
 GitHub: https://github.com/Rehxn2k06
 
