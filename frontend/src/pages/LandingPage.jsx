@@ -411,8 +411,8 @@ const LandingPage = () => {
                 role="Frontend Developer" 
                 initial="RR" 
                 imgSrc={new URL('../assets/ruhani.jpeg', import.meta.url).href}
-                github="https://https://github.com/ruhaniraman"
-                linkedin="https://https://www.linkedin.com/in/ruhani-raman-340043327/"
+                github="https://github.com/ruhaniraman"
+                linkedin="https://www.linkedin.com/in/ruhani-raman-340043327/"
             />
             <TeamMember 
                 name="Manosh S" 
