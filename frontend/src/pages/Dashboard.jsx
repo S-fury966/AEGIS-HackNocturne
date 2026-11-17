@@ -14,6 +14,7 @@ import {
   Loader2,
   Wand2
 } from 'lucide-react';
+import { API_URL } from '../config';
 
 // ─── Safe Plotly wrapper ───────────────────────────────────────────────────
 const PlotlyHeatmap = ({ matrixData }) => {
@@ -495,7 +496,7 @@ const Dashboard = () => {
     setResults(null);
     
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -541,8 +542,8 @@ const Dashboard = () => {
         status: "Error",
         summary: [
           "Connection to backend failed.",
-          "Please ensure your FastAPI server is running on port 8000.",
-          "Verify CORS is correctly enabled in main.py."
+          "Please ensure the backend is running and reachable.",
+          "Verify CORS is enabled in api.py and that VITE_API_URL points to the running backend."
         ],
         matrixData: null,
         stabilityMapData: null,

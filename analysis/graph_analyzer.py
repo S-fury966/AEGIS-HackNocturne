@@ -1,35 +1,43 @@
 import networkx as nx
-import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class GraphAnalyzer:
 
-    def build_graph(self, prompt, responses):
+    SIMILARITY_THRESHOLD = 0.6
+
+    def build_graph(self, responses, embeddings, threshold=None):
+
+        if threshold is None:
+            threshold = self.SIMILARITY_THRESHOLD
 
         G = nx.Graph()
 
-        G.add_node(prompt)
+        # one node per response, keyed by index so duplicate strings never merge
+        G.add_nodes_from(range(len(responses)))
 
-        for r in responses:
+        if len(responses) < 2:
+            return G
 
-            G.add_node(r)
+        sim_matrix = cosine_similarity(embeddings)
 
-            G.add_edge(prompt, r)
+        for i in range(len(responses)):
+            for j in range(i + 1, len(responses)):
+                if sim_matrix[i][j] >= threshold:
+                    G.add_edge(i, j)
 
         return G
 
     def graph_stability(self, graph):
 
-        degrees = []
+        n = graph.number_of_nodes()
 
-        for node in graph.nodes():
+        if n == 0:
+            return 0.0
 
-            degrees.append(graph.degree[node])
+        if n == 1:
+            return 1.0
 
-        degrees = np.array(degrees)
+        largest = max(len(c) for c in nx.connected_components(graph))
 
-        variance = np.var(degrees)
-
-        stability = 1 / (1 + variance)
-
-        return stability
+        return largest / n

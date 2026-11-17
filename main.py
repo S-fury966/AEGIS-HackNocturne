@@ -1,11 +1,7 @@
 from models.llm_interface import LLMInterface
 from models.similarity_model import SimilarityModel
 
-from perturbations.paraphrase import paraphrase
-from perturbations.emotional import emotional
-from perturbations.structural import structural
-from perturbations.logical_flip import logical_flip
-from perturbations.reasoning import reasoning
+from perturbations.generate import generate_perturbations
 
 from analysis.graph_analyzer import GraphAnalyzer
 from analysis.hallucination_detector import HallucinationDetector
@@ -73,19 +69,9 @@ def main():
     # Prompt Perturbation
     # --------------------------------
 
-    prompt_pairs = []
-
-    prompt_pairs.extend([(p, "paraphrase") for p in paraphrase(prompt)])
-    prompt_pairs.extend([(p, "emotional") for p in emotional(prompt)])
-    prompt_pairs.extend([(p, "structural") for p in structural(prompt)])
-    prompt_pairs.extend([(p, "logical_flip") for p in logical_flip(prompt)])
-    prompt_pairs.extend([(p, "reasoning") for p in reasoning(prompt)])
-
-    prompt_pairs = list(set(prompt_pairs))
-    prompt_pairs = prompt_pairs[:12]
-
-    prompts = [p[0] for p in prompt_pairs]
-    types = [p[1] for p in prompt_pairs]
+    pairs = generate_perturbations(prompt)
+    prompts = [p for p, _ in pairs]
+    types = [t for _, t in pairs]
 
     print("Generated Perturbed Prompts:\n")
 
@@ -159,7 +145,7 @@ def main():
 
     graph_analyzer = GraphAnalyzer()
 
-    graph = graph_analyzer.build_graph(prompt, responses)
+    graph = graph_analyzer.build_graph(responses, embeddings)
 
     graph_score = graph_analyzer.graph_stability(graph)
 

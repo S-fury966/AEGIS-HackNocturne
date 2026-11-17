@@ -1,9 +1,7 @@
 import time
-from perturbations.paraphrase import paraphrase
-from perturbations.emotional import emotional
-from perturbations.structural import structural
-from perturbations.logical_flip import logical_flip
-from perturbations.reasoning import reasoning
+from perturbations.generate import generate_perturbations
+from analysis.sensitivity_curve import SensitivityAnalyzer
+from analysis.fragility_analyzer import FragilityAnalyzer
 from optimization.token_refinement_loop import TokenRefinementLoop
 
 # Keep your helper functions
@@ -36,13 +34,9 @@ def run_stability_analysis(
     """
     
     # 1. Prompt Perturbation
-    prompts = []
-    prompts.extend(paraphrase(prompt))
-    prompts.extend(emotional(prompt))
-    prompts.extend(structural(prompt))
-    prompts.extend(logical_flip(prompt))
-    prompts.extend(reasoning(prompt))
-    prompts = list(set(prompts))[:12]
+    pairs = generate_perturbations(prompt)
+    prompts = [p for p, _ in pairs]
+    types = [t for _, t in pairs]
 
     # 2. LLM Generation
     responses = []
@@ -50,12 +44,16 @@ def run_stability_analysis(
         outputs = llm_interface.generate(p, n=1)
         responses.extend(outputs)
 
+    # 2b. Per-type fragility (one response per prompt, so responses align with types)
+    _, divergences = SensitivityAnalyzer(similarity_model).compute_curve(prompt, prompts, responses)
+    fragility_scores = FragilityAnalyzer().compute(types, divergences)
+
     # 3. Similarity
     embeddings = similarity_model.embed(responses)
     similarity_score, similarity_matrix = similarity_model.similarity_score(embeddings)
 
     # 4. Graph Stability
-    graph = graph_analyzer.build_graph(prompt, responses)
+    graph = graph_analyzer.build_graph(responses, embeddings)
     graph_score = graph_analyzer.graph_stability(graph)
 
     # 5. Hallucination Detection
@@ -115,5 +113,7 @@ def run_stability_analysis(
             "similarity_matrix": similarity_matrix.tolist(), 
             "prompt_scores": prompt_scores
         },
-        "token_optimization": token_optimization
+        "token_optimization": token_optimization,
+        "perturbation_types": types,
+        "fragility": {t: round(float(s), 3) for t, s in fragility_scores.items()}
     }

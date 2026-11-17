@@ -12,6 +12,7 @@ import {
   Loader2,
   LayoutDashboard
 } from 'lucide-react';
+import { API_URL } from '../config';
 
 // ─── Safe Plotly wrapper for Before/After Comparison ─────────────────────
 const PlotlyComparisonChart = ({ originalMetrics, optimizedMetrics }) => {
@@ -83,15 +84,16 @@ const Optimizer = () => {
   const [prompt, setPrompt] = useState(location.state?.analyzedPrompt || '');
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [results, setResults] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Connect to your new Python endpoint
   const handleOptimize = async () => {
     if (!prompt.trim()) return;
     setIsOptimizing(true);
-    
+    setErrorMessage(null);
+
     try {
-      // NOTE: Update this URL to match your new FastAPI optimization endpoint
-      const response = await fetch("http://127.0.0.1:8000/optimize", {
+      const response = await fetch(`${API_URL}/optimize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt }), 
@@ -104,14 +106,8 @@ const Optimizer = () => {
 
     } catch (error) {
       console.error(error);
-      // Fallback dummy data for UI testing if backend isn't ready yet
-      setResults({
-        optimized_prompt: "Explain the fundamental mechanics of the theory of relativity using analogies suitable for a 5-year-old child. Structure the response in 3 concise bullet points.",
-        original_tokens: 42,
-        optimized_tokens: 28,
-        original_metrics: [55, 62, 45],
-        optimized_metrics: [94, 91, 98]
-      });
+      setResults(null);
+      setErrorMessage("Could not reach the backend. Check that it is running and that VITE_API_URL is correct.");
     } finally {
       setIsOptimizing(false);
     }
@@ -220,13 +216,17 @@ const Optimizer = () => {
                   <Loader2 className="w-8 h-8 animate-spin" />
                   <p className="animate-pulse text-sm">Restructuring logic constraints...</p>
                 </div>
+              ) : results && results.optimization_applied === false ? (
+                <div className="flex-1 flex items-center justify-center text-slate-600 italic text-sm">
+                  {results.message}
+                </div>
               ) : results ? (
                 <div className="flex-1 w-full bg-[#0f172a]/50 rounded-xl p-4 text-purple-50 overflow-y-auto border border-purple-500/10 shadow-inner custom-scrollbar">
                   {results.optimized_prompt}
                 </div>
               ) : (
                 <div className="flex-1 flex items-center justify-center text-slate-600 italic text-sm">
-                  Run optimization to view results
+                  {errorMessage || "Run optimization to view results"}
                 </div>
               )}
             </div>
@@ -244,8 +244,8 @@ const Optimizer = () => {
             </button>
           </div>
 
-          {/* ANALYTICS DASHBOARD */}
-          {results && (
+          {/* ANALYTICS DASHBOARD (hidden when no candidate was accepted: there is no before/after) */}
+          {results && results.optimization_applied !== false && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               className="grid md:grid-cols-3 gap-6 pt-8"

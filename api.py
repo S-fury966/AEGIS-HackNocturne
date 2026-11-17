@@ -45,7 +45,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
-    allow_credentials=True,
+    allow_credentials=False,  # wildcard origin + credentials is invalid; no cookies are used
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -74,6 +74,33 @@ async def analyze_prompt(request: AnalyzeRequest):
         # If anything crashes, send a clean error to the React frontend
         raise HTTPException(status_code=500, detail=str(e))
 
+def chart_metrics(scores):
+    """[stability, semantic, safety] on a 0-100 scale, computed identically for both sides."""
+    return [
+        round(scores["final_stability"] * 100),
+        round(scores["similarity"] * 100),
+        round((1 - scores["hallucination_risk"]) * 100),
+    ]
+
+
+def build_optimize_response(opt_data):
+    """Shape TokenRefinementLoop output for Optimizer.jsx.
+
+    Both sides come from the same evaluation method (_full_evaluate):
+    baseline_scores for the original prompt, optimized_scores for the chosen candidate
+    (equal to baseline_scores when no candidate was accepted).
+    """
+    return {
+        "optimized_prompt": opt_data["optimized_prompt"],
+        "original_tokens": opt_data["original_tokens"],
+        "optimized_tokens": opt_data["optimized_tokens"],
+        "original_metrics": chart_metrics(opt_data["baseline_scores"]),
+        "optimized_metrics": chart_metrics(opt_data["optimized_scores"]),
+        "optimization_applied": opt_data["optimization_applied"],
+        "message": opt_data["message"],
+    }
+
+
 # Add this below your existing @app.post("/analyze") endpoint
 
 @app.post("/optimize")
@@ -90,33 +117,9 @@ async def optimize_prompt(request: AnalyzeRequest):
             stability_analyzer=ml_models["stability"]
         )
         
-        # 2. Extract baseline metrics (multiplying by 100 for the 0-100 chart scale)
-        orig_stability = results["metrics"]["final_score"] * 100
-        orig_semantic = results["metrics"]["similarity_score"] * 100
-        orig_safety = (1 - results["metrics"]["hallucination_risk"]) * 100
-        
-        # 3. Extract optimization data returned from TokenRefinementLoop
-        # (Make sure these keys match what your TokenRefinementLoop actually returns)
-        opt_data = results.get("token_optimization", {})
-        
-        optimized_prompt = opt_data.get("optimized_prompt", "Optimized: " + request.prompt)
-        orig_tokens = opt_data.get("original_tokens", len(request.prompt.split()) * 2)
-        opt_tokens = opt_data.get("optimized_tokens", len(request.prompt.split()))
-        
-        # If your TokenRefinementLoop calculates new scores, use them. Otherwise, mock improvements for the chart.
-        opt_stability = opt_data.get("new_final_score", results["metrics"]["final_score"] + 0.15) * 100
-        opt_semantic = opt_data.get("new_similarity", results["metrics"]["similarity_score"] + 0.10) * 100
-        opt_safety = (1 - opt_data.get("new_hallucination_risk", max(0, results["metrics"]["hallucination_risk"] - 0.2))) * 100
+        # 2. Build the response from TokenRefinementLoop output only
+        return build_optimize_response(results["token_optimization"])
 
-        # 4. Return the exact JSON structure expected by Optimizer.jsx
-        return {
-            "optimized_prompt": optimized_prompt,
-            "original_tokens": round(orig_tokens),
-            "optimized_tokens": round(opt_tokens),
-            "original_metrics": [round(orig_stability), round(orig_semantic), round(orig_safety)],
-            "optimized_metrics": [round(opt_stability), round(opt_semantic), round(opt_safety)]
-        }
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

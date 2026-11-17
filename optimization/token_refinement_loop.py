@@ -8,6 +8,9 @@ from analysis.stability_analyzer import StabilityAnalyzer
 
 class TokenRefinementLoop:
 
+    # responses generated per prompt in _full_evaluate (baseline and candidates alike)
+    EVAL_N = 5
+
     def __init__(self, llm, similarity_model, stability_threshold=0.90):
 
         self.llm = llm
@@ -23,8 +26,13 @@ class TokenRefinementLoop:
 
     def run(self, original_prompt, original_scores):
 
+        # pipeline score: used for display and the returned dict only
         original_stability_score = original_scores["final_stability"]
         original_tokens = self.llm.count_tokens(original_prompt)
+
+        # re-score the original with the same method as the candidates so comparisons are fair
+        baseline_scores, baseline_responses = self._full_evaluate(original_prompt)
+        baseline_stability = baseline_scores["final_stability"]
 
         candidates = self.token_optimizer.optimize(original_prompt)
 
@@ -39,7 +47,7 @@ class TokenRefinementLoop:
             scores, responses = self._full_evaluate(candidate)
 
             stability = scores["final_stability"]
-            stability_ratio = stability / original_stability_score if original_stability_score > 0 else 0
+            stability_ratio = stability / baseline_stability if baseline_stability > 0 else 0
             efficiency = stability * (original_tokens / candidate_tokens) if candidate_tokens > 0 else 0
 
             results.append({
@@ -52,7 +60,7 @@ class TokenRefinementLoop:
                 "efficiency": efficiency
             })
 
-        min_stability = original_stability_score * self.stability_threshold
+        min_stability = baseline_stability * self.stability_threshold
         shorter_candidates = [r for r in results if r["tokens"] < original_tokens]
         stable_shorter = [r for r in shorter_candidates if r["stability"] >= min_stability]
 
@@ -66,9 +74,9 @@ class TokenRefinementLoop:
             best = {
                 "prompt": None,
                 "tokens": original_tokens,
-                "scores": original_scores,
+                "scores": baseline_scores,
                 "responses": [],
-                "stability": original_stability_score,
+                "stability": baseline_stability,
                 "stability_ratio": 1.0,
                 "efficiency": 0.0
             }
@@ -101,7 +109,7 @@ class TokenRefinementLoop:
             print(f"\n  Warning: {message}")
             print(f"  Required minimum stability: {min_stability:.3f}")
 
-        print(f"\n  {'Metric':<25} {'Original':>10} {'Optimized':>10} {'Delta':>10}")
+        print(f"\n  {'Metric':<25} {'Baseline':>10} {'Optimized':>10} {'Delta':>10}")
         print(f"  {'-' * 57}")
 
         metrics = [
@@ -114,7 +122,7 @@ class TokenRefinementLoop:
 
         for label, key in metrics:
 
-            orig_val = original_scores[key]
+            orig_val = baseline_scores[key]
             opt_val = best["scores"][key]
 
             if key == "hallucination_risk":
@@ -144,6 +152,9 @@ class TokenRefinementLoop:
             "token_savings": token_savings,
             "savings_pct": savings_pct,
             "original_stability": original_stability_score,
+            "baseline_stability": baseline_stability,
+            "baseline_scores": baseline_scores,
+            "optimized_scores": best["scores"],
             "optimized_stability": best["stability"],
             "efficiency_score": best["efficiency"],
             "optimized_responses": best["responses"],
@@ -159,12 +170,12 @@ class TokenRefinementLoop:
 
     def _full_evaluate(self, prompt):
 
-        responses = self.llm.generate(prompt, n=3)
+        responses = self.llm.generate(prompt, n=self.EVAL_N)
 
         embeddings = self.similarity_model.embed(responses)
         similarity_score, _ = self.similarity_model.similarity_score(embeddings)
 
-        graph = self.graph_analyzer.build_graph(prompt, responses)
+        graph = self.graph_analyzer.build_graph(responses, embeddings)
         graph_score = self.graph_analyzer.graph_stability(graph)
 
         hallucination_risk = self.hallucination_detector.detect(responses)

@@ -18,6 +18,9 @@ from analysis.stability_analyzer import StabilityAnalyzer
 
 class RefinementLoop:
 
+    # responses generated per prompt in _full_evaluate (baseline and candidates alike)
+    EVAL_N = 5
+
     def __init__(self, llm, similarity_model):
 
         self.llm = llm
@@ -32,6 +35,9 @@ class RefinementLoop:
         self.stability_analyzer = StabilityAnalyzer()
 
     def run(self, original_prompt, diagnosis):
+
+        # re-score the original with the same method as the candidates so comparisons are fair
+        baseline_scores, _ = self._full_evaluate(original_prompt)
 
         strategies = self.strategy_selector.select(diagnosis["weaknesses"])
         candidates = self.prompt_optimizer.optimize(original_prompt, strategies)
@@ -54,7 +60,7 @@ class RefinementLoop:
                 best_responses = responses
 
         original_scores = diagnosis["scores"]
-        improvement = best_scores["final_stability"] - original_scores["final_stability"]
+        improvement = best_scores["final_stability"] - baseline_scores["final_stability"]
 
         # =========================================
         # SECTION 1: ORIGINAL PROMPT STABILITY
@@ -79,7 +85,7 @@ class RefinementLoop:
         print("ORIGINAL vs HEALED — COMPARISON")
         print("==============================\n")
 
-        print(f"  {'Metric':<25} {'Original':>10} {'Healed':>10} {'Delta':>10}")
+        print(f"  {'Metric':<25} {'Baseline':>10} {'Healed':>10} {'Delta':>10}")
         print(f"  {'-' * 57}")
 
         metrics = [
@@ -92,7 +98,7 @@ class RefinementLoop:
 
         for label, key in metrics:
 
-            orig_val = original_scores[key]
+            orig_val = baseline_scores[key]
             opt_val = best_scores[key]
 
             if key == "hallucination_risk":
@@ -133,6 +139,7 @@ class RefinementLoop:
             "original_prompt": original_prompt,
             "healed_prompt": best_candidate,
             "original_scores": original_scores,
+            "baseline_scores": baseline_scores,
             "healed_scores": best_scores,
             "healed_responses": best_responses,
             "improvement": improvement
@@ -142,14 +149,14 @@ class RefinementLoop:
     def _full_evaluate(self, prompt):
 
         # generate responses from the LLM
-        responses = self.llm.generate(prompt, n=3)
+        responses = self.llm.generate(prompt, n=self.EVAL_N)
 
         # similarity score
         embeddings = self.similarity_model.embed(responses)
         similarity_score, _ = self.similarity_model.similarity_score(embeddings)
 
         # graph stability
-        graph = self.graph_analyzer.build_graph(prompt, responses)
+        graph = self.graph_analyzer.build_graph(responses, embeddings)
         graph_score = self.graph_analyzer.graph_stability(graph)
 
         # hallucination risk
